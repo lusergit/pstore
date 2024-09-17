@@ -38,6 +38,20 @@ defmodule Pstore.Pets do
   def get_pet!(id), do: Repo.get!(Pet, id)
 
   @doc """
+  Gets a single pet.
+
+  ## Examples
+
+      iex> get_pet(123)
+      {:ok, %Pet{}}
+
+      iex> get_pet(456)
+      {:error, :error_details}
+
+  """
+  def get_pet(id), do: Repo.get(Pet, id)
+
+  @doc """
   Creates a pet.
 
   ## Examples

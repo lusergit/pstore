@@ -19,6 +19,6 @@ defmodule PstoreWeb.FallbackController do
     conn
     |> put_status(:not_found)
     |> put_view(html: PstoreWeb.ErrorHTML, json: PstoreWeb.ErrorJSON)
-    |> render(:"404")
+    |> render("404.json")
   end
 end
