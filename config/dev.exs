@@ -2,8 +2,8 @@ import Config
 
 # Configure your database
 config :pstore, Pstore.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "pstore",
+  password: "pstorepswd",
   hostname: "localhost",
   database: "pstore_dev",
   stacktrace: true,

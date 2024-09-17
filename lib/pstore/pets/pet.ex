@@ -16,6 +16,10 @@ defmodule Pstore.Pets.Pet do
   def changeset(pet, attrs) do
     pet
     |> cast(attrs, [:name, :age, :species, :breed, :desc])
-    |> validate_required([:name, :age, :species, :breed, :desc])
+    |> validate_required([:name, :age, :species, :breed])
+    |> unique_constraint(:name)
+    |> validate_number(:age, greater_than: 0)
+    |> validate_length(:name, min: 0)
+    |> validate_length(:breed, min: 0)
   end
 end

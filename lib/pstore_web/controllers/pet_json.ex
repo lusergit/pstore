@@ -17,12 +17,15 @@ defmodule PstoreWeb.PetJSON do
 
   defp data(%Pet{} = pet) do
     %{
+      type: "pets",
       id: pet.id,
-      name: pet.name,
-      age: pet.age,
-      species: pet.species,
-      breed: pet.breed,
-      desc: pet.desc
+      attributes: %{
+        name: pet.name,
+        age: pet.age,
+        species: pet.species,
+        breed: pet.breed,
+        desc: pet.desc
+      }
     }
   end
 end
