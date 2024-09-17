@@ -1,18 +1,46 @@
 # Pstore
 
-To start your Phoenix server:
+Manage a petstore of cats and dogs! 
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Pre
+- the [elixir language](https://elixir-lang.org/)
+- the [phoenix framework](https://www.phoenixframework.org/)
+- and a database, currently tested with
+  [PostgreSQL](https://www.postgresql.org/)
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+## Run the server
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Configure the database connection in
+[confing/dev.exs](./config/dev.exs), currently the configuration is
+the following
 
-## Learn more
+```elixir
+config :pstore, Pstore.Repo,
+  username: "pstore",
+  password: "pstorepswd",
+  hostname: "localhost",
+  database: "pstore_dev",
+  # ...
+```
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+Then you can run the server with
+
+```sh
+mix phx.server
+```
+
+## Routes
+Once the server is started several http endpoints are available,
+namely
+```
+  GET     /pets                                  Get the list of all pets in the store
+  GET     /pets/:id                              Show the details of the pet with id :id
+  POST    /pets                                  Create a new pet
+  PUT     /pets/:id                              Update a pet's details
+  DELETE  /pets/:id                              Delete the pet with id :id
+  
+  ...
+```
+The full routes list and their controller are available with
+
+	mix phx.routes
