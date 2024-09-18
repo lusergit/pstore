@@ -10,6 +10,11 @@ defmodule Pstore.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
+      # preferred_cli_env: [
+      # 	check: :test,
+      # 	credo: :test,
+      # 	dialyzer: :test,
+      # ]
     ]
   end
 
@@ -58,7 +63,10 @@ defmodule Pstore.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:ex_check, "~> 0.16.0", only: [:dev], runtime: false},
+      {:credo, ">= 0.0.0", only: [:dev], runtime: false},
+      {:dialyxir, ">= 0.0.0", only: [:dev], runtime: false}
     ]
   end
 
