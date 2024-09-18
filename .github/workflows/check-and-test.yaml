@@ -1,0 +1,26 @@
+check-and-test:
+    name: Check and Test
+    runs-on: ubuntu-latest
+    services:
+      database:
+        image: postgres:12.3
+        database: pstore_test
+        env:
+          POSTGRES_USER: pstore
+          POSTGRES_PASSWORD: pstorepswd
+        ports:
+        - 5432:5432
+    env:
+      MIX_ENV: test
+    steps:
+    - uses: actions/checkout@v2
+    - uses: erlef/setup-beam@v1
+      with:
+        otp-version: latest
+        elixir-version: latest
+    - name: Install Dependencies
+      run: mix deps.get
+    - name: Check
+      run: mix check
+    - name: Test
+      run: mix test
