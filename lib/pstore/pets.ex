@@ -54,9 +54,9 @@ defmodule Pstore.Pets do
     Enum.reduce(keys, query, fn key, last ->
       if String.starts_with?(key, "-") do
         ob = String.replace(key, "-", "")
-        order_by(last, [p], desc: ^String.to_atom(ob))
+        order_by(last, [p], desc: ^String.to_existing_atom(ob))
       else
-        order_by(last, [p], ^String.to_atom(key))
+        order_by(last, [p], ^String.to_existing_atom(key))
       end
     end)
   end
