@@ -3,7 +3,7 @@ defmodule Pstore.Repo.Migrations.CreatePets do
 
   def change do
     create table(:pets) do
-      add :name, :string
+      add :name, :string, unique: true
       add :age, :integer
       add :species, :string
       add :breed, :string
