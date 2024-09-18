@@ -13,8 +13,6 @@ jobs:
             POSTGRES_DB: pstore_test
           ports:
           - 5432:5432
-      env:
-        MIX_ENV: test
       steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
