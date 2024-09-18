@@ -22,10 +22,13 @@ defmodule Pstore.Pets do
   end
 
   def list_with_restrictions(filters, sorts) do
-    Pet
-    |> filter(filters)
-    |> sort(sorts)
-    |> Repo.all()
+    pets =
+      Pet
+      |> filter(filters)
+      |> sort(sorts)
+      |> Repo.all()
+
+    {:ok, List.wrap(pets)}
   end
 
   def with_breed(query, breed) do
@@ -40,6 +43,8 @@ defmodule Pstore.Pets do
     where(query, [p], p.age == ^age)
   end
 
+  def filter(query, nil), do: query
+
   def filter(query, args) do
     Enum.reduce(args, query, fn {key, val}, last ->
       case key do
@@ -49,6 +54,8 @@ defmodule Pstore.Pets do
       end
     end)
   end
+
+  def sort(query, []), do: query
 
   def sort(query, keys) do
     Enum.reduce(keys, query, fn key, last ->

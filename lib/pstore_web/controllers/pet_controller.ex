@@ -10,9 +10,9 @@ defmodule PstoreWeb.PetController do
     filters = Map.get(params, "filter")
     sorts = List.wrap(Map.get(params, "sort"))
 
-    pets = Pets.list_with_restrictions(filters, sorts)
-
-    render(conn, :index, pets: pets)
+    with {:ok, pets} <- Pets.list_with_restrictions(filters, sorts) do
+      render(conn, :index, pets: pets)
+    end
   end
 
   def create(conn, %{"pet" => pet_params}) do
@@ -31,18 +31,16 @@ defmodule PstoreWeb.PetController do
   end
 
   def update(conn, %{"id" => id, "pet" => pet_params}) do
-    with {:ok, %Pet{} = pet} <- Pets.fetch(id) do
-      with {:ok, %Pet{} = pet} <- Pets.update_pet(pet, pet_params) do
-        render(conn, :show, pet: pet)
-      end
+    with {:ok, %Pet{} = pet} <- Pets.fetch(id),
+         {:ok, %Pet{} = pet} <- Pets.update_pet(pet, pet_params) do
+      render(conn, :show, pet: pet)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    with {:ok, %Pet{} = pet} <- Pets.fetch(id) do
-      with {:ok, %Pet{}} <- Pets.delete_pet(pet) do
-        send_resp(conn, :no_content, "")
-      end
+    with {:ok, %Pet{} = pet} <- Pets.fetch(id),
+         {:ok, %Pet{}} <- Pets.delete_pet(pet) do
+      send_resp(conn, :no_content, "")
     end
   end
 end
