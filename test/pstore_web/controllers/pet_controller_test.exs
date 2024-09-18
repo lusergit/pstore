@@ -19,6 +19,20 @@ defmodule PstoreWeb.PetControllerTest do
     species: :dog,
     breed: "some updated breed"
   }
+  @cat_attrs %{
+    name: "some cat name",
+    desc: "some cat desc",
+    age: 43,
+    species: :cat,
+    breed: "some cat breed"
+  }
+  @dog_attrs %{
+    name: "some dog name",
+    desc: "some dog desc",
+    age: 42,
+    species: :dog,
+    breed: "some dog breed"
+  }
   @invalid_attrs %{name: nil, desc: nil, age: nil, species: nil, breed: nil}
 
   setup %{conn: conn} do
@@ -29,6 +43,33 @@ defmodule PstoreWeb.PetControllerTest do
     test "lists all pets", %{conn: conn} do
       conn = get(conn, ~p"/pets")
       assert json_response(conn, 200)["data"] == []
+    end
+  end
+
+  describe "filtering and sorting" do
+    setup [:create_cat, :create_dog]
+
+    test "Filtering dogs returns one dog", %{conn: conn} do
+      conn = get(conn, ~p"/pets?filter[species]=dog")
+
+      assert length(json_response(conn, 200)["data"]) == 1
+      assert hd(json_response(conn, 200)["data"])["attributes"]["species"] == "dog"
+    end
+
+    test "Filtering cats returns one cat", %{conn: conn} do
+      conn = get(conn, ~p"/pets?filter[species]=cat")
+
+      assert length(json_response(conn, 200)["data"]) == 1
+      assert hd(json_response(conn, 200)["data"])["attributes"]["species"] == "cat"
+    end
+
+    test "sorting by age returns first the cat and then the dog", %{conn: conn} do
+      conn = get(conn, ~p"/pets?sort=age")
+
+      assert length(json_response(conn, 200)["data"]) == 2
+      [dog, cat] = json_response(conn, 200)["data"]
+      assert cat["attributes"]["species"] == "cat"
+      assert dog["attributes"]["species"] == "dog"
     end
   end
 
@@ -90,7 +131,7 @@ defmodule PstoreWeb.PetControllerTest do
     setup [:create_pet]
 
     test "deletes chosen pet", %{conn: conn, pet: pet} do
-      conn = delete(conn, ~p"/pets/#{pet.id}")
+      conn = delete(conn, ~p"/pets/#{pet}")
       assert response(conn, 204)
 
       conn = get(conn, ~p"/pets/#{pet}")
@@ -100,6 +141,16 @@ defmodule PstoreWeb.PetControllerTest do
 
   defp create_pet(_) do
     pet = pet_fixture()
+    %{pet: pet}
+  end
+
+  defp create_cat(_) do
+    pet = pet_fixture(@cat_attrs)
+    %{pet: pet}
+  end
+
+  defp create_dog(_) do
+    pet = pet_fixture(@dog_attrs)
     %{pet: pet}
   end
 end

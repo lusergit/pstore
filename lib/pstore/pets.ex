@@ -21,6 +21,46 @@ defmodule Pstore.Pets do
     Repo.all(Pet)
   end
 
+  def list_with_restrictions(filters, sorts) do
+    Pet
+    |> filter(filters)
+    |> sort(sorts)
+    |> Repo.all()
+  end
+
+  def with_breed(query, breed) do
+    where(query, [p], p.breed == ^breed)
+  end
+
+  def with_species(query, species) do
+    where(query, [p], p.species == ^species)
+  end
+
+  def with_age(query, age) do
+    where(query, [p], p.age == ^age)
+  end
+
+  def filter(query, args) do
+    Enum.reduce(args, query, fn {key, val}, last ->
+      case key do
+        "species" -> with_species(last, val)
+        "breed" -> with_breed(last, val)
+        "age" -> with_age(last, val)
+      end
+    end)
+  end
+
+  def sort(query, keys) do
+    Enum.reduce(keys, query, fn key, last ->
+      if String.starts_with?(key, "-") do
+        ob = String.replace(key, "-", "")
+        order_by(last, [p], desc: ^String.to_atom(ob))
+      else
+        order_by(last, [p], ^String.to_atom(key))
+      end
+    end)
+  end
+
   @doc """
   Gets a single pet.
 

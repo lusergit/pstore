@@ -6,8 +6,22 @@ defmodule PstoreWeb.PetController do
 
   action_fallback PstoreWeb.FallbackController
 
-  def index(conn, _params) do
-    pets = Pets.list_pets()
+  def index(conn, params) do
+    filters =
+      case params["filter"] do
+        nil -> %{}
+        v -> v
+      end
+
+    sorts =
+      case params["sort"] do
+        nil -> []
+        [h | t] -> [h | t]
+        v -> [v]
+      end
+
+    pets = Pets.list_with_restrictions(filters, sorts)
+
     render(conn, :index, pets: pets)
   end
 
