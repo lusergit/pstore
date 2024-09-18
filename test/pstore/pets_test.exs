@@ -21,7 +21,13 @@ defmodule Pstore.PetsTest do
     end
 
     test "create_pet/1 with valid data creates a pet" do
-      valid_attrs = %{name: "some name", desc: "some desc", age: 42, species: :cat, breed: "some breed"}
+      valid_attrs = %{
+        name: "some name",
+        desc: "some desc",
+        age: 42,
+        species: :cat,
+        breed: "some breed"
+      }
 
       assert {:ok, %Pet{} = pet} = Pets.create_pet(valid_attrs)
       assert pet.name == "some name"
@@ -37,7 +43,14 @@ defmodule Pstore.PetsTest do
 
     test "update_pet/2 with valid data updates the pet" do
       pet = pet_fixture()
-      update_attrs = %{name: "some updated name", desc: "some updated desc", age: 43, species: :dog, breed: "some updated breed"}
+
+      update_attrs = %{
+        name: "some updated name",
+        desc: "some updated desc",
+        age: 43,
+        species: :dog,
+        breed: "some updated breed"
+      }
 
       assert {:ok, %Pet{} = pet} = Pets.update_pet(pet, update_attrs)
       assert pet.name == "some updated name"

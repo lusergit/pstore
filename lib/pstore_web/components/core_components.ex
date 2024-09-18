@@ -17,7 +17,7 @@ defmodule PstoreWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import PstoreWeb.Gettext
+  use Gettext, backend: PstoreWeb.Gettext
 
   @doc """
   Renders a modal.

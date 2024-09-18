@@ -38,18 +38,23 @@ defmodule Pstore.Pets do
   def get_pet!(id), do: Repo.get!(Pet, id)
 
   @doc """
-  Gets a single pet.
+  Fetches a pet,.
 
-  ## Examples
-
-      iex> get_pet(123)
-      {:ok, %Pet{}}
-
-      iex> get_pet(456)
-      {:error, :error_details}
-
+  It returnes {:ok, pet} if succeedes, {:error, :not_found} otherwise.
   """
-  def get_pet(id), do: Repo.get(Pet, id)
+  def fetch(id, opts \\ []) do
+    case Repo.get(Pet, id, opts) do
+      nil -> {:error, :not_found}
+      pet -> {:ok, pet}
+    end
+  end
+
+  def fetch_by(clauses, opts \\ []) do
+    case Repo.get_by(Pet, clauses, opts) do
+      nil -> {:error, :not_found}
+      pet -> {:ok, pet}
+    end
+  end
 
   @doc """
   Creates a pet.

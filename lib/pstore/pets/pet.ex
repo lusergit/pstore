@@ -2,6 +2,8 @@ defmodule Pstore.Pets.Pet do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @moduledoc false
+
   schema "pets" do
     field :name, :string
     field :desc, :string

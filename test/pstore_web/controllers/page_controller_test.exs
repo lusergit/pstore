@@ -1,8 +1,9 @@
 defmodule PstoreWeb.PageControllerTest do
   use PstoreWeb.ConnCase
 
-  test "GET /", %{conn: conn} do
-    conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "Peace of mind from prototype to production"
+  test "GET /pets", %{conn: conn} do
+    conn = get(conn, ~p"/pets")
+    assert %{"data" => l} = json_response(conn, 200)
+    assert is_list(l)
   end
 end
