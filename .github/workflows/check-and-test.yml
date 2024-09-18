@@ -7,10 +7,10 @@ jobs:
       services:
         database:
           image: postgres:12.3
-          database: pstore_test
           env:
             POSTGRES_USER: pstore
             POSTGRES_PASSWORD: pstorepswd
+            POSTGRES_DB: pstore_test
           ports:
           - 5432:5432
       env:
