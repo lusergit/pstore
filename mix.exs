@@ -10,11 +10,6 @@ defmodule Pstore.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
-      # preferred_cli_env: [
-      # 	check: :test,
-      # 	credo: :test,
-      # 	dialyzer: :test,
-      # ]
     ]
   end
 
