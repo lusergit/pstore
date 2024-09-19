@@ -20,6 +20,7 @@ defmodule PstoreWeb.Router do
   scope "/", PstoreWeb do
     pipe_through :api
 
+    get "/", WelcomeController, :index
     resources "/pets", PetController
   end
 
