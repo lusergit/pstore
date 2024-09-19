@@ -21,4 +21,12 @@ defmodule PstoreWeb.FallbackController do
     |> put_view(html: PstoreWeb.ErrorHTML, json: PstoreWeb.ErrorJSON)
     |> render("404.json")
   end
+
+  # Generic error handles
+  def call(conn, {:error, _}) do
+    conn
+    |> put_status(:internal_server_error)
+    |> put_view(json: PstoreWeb.ErrorJSON)
+    |> render("500.json")
+  end
 end

@@ -21,7 +21,7 @@ defmodule Pstore.Pets do
     Repo.all(Pet)
   end
 
-  def list_with_restrictions(filters, sorts) do
+  def list_pets(filters, sorts) do
     pets =
       Pet
       |> filter(filters)
@@ -31,41 +31,54 @@ defmodule Pstore.Pets do
     {:ok, List.wrap(pets)}
   end
 
-  def with_breed(query, breed) do
+  defp with_breed(query, breed) do
     where(query, [p], p.breed == ^breed)
   end
 
-  def with_species(query, species) do
+  defp with_species(query, species) do
     where(query, [p], p.species == ^species)
   end
 
-  def with_age(query, age) do
+  defp with_age(query, age) do
     where(query, [p], p.age == ^age)
   end
 
-  def filter(query, nil), do: query
-
-  def filter(query, args) do
+  defp filter(query, args) do
     Enum.reduce(args, query, fn {key, val}, last ->
       case key do
         "species" -> with_species(last, val)
         "breed" -> with_breed(last, val)
         "age" -> with_age(last, val)
+        _ -> last
       end
     end)
   end
 
-  def sort(query, []), do: query
+  defp sort(query, keys) when is_list(keys) do
+    desc_keys =
+      keys
+      |> Enum.filter(&String.starts_with?(&1, "-"))
+      |> Enum.map(&String.replace_prefix(&1, "-", ""))
 
-  def sort(query, keys) do
-    Enum.reduce(keys, query, fn key, last ->
-      if String.starts_with?(key, "-") do
-        ob = String.replace(key, "-", "")
-        order_by(last, [p], desc: ^String.to_existing_atom(ob))
-      else
-        order_by(last, [p], ^String.to_existing_atom(key))
-      end
+    asc_keys = keys |> Enum.filter(&(not String.starts_with?(&1, "-")))
+
+    new_order =
+      Enum.reduce(desc_keys, query, fn key, last ->
+        order_by(last, [], desc: ^String.to_existing_atom(key))
+      end)
+
+    Enum.reduce(asc_keys, new_order, fn key, last ->
+      order_by(last, [], ^String.to_existing_atom(key))
     end)
+
+    # Enum.reduce(keys, query, fn key, last ->
+    #   if String.starts_with?(key, "-") do
+    #     ob = String.replace(key, "-", "")
+    #     order_by(last, [p], desc: ^String.to_existing_atom(ob))
+    #   else
+    #     order_by(last, [p], ^String.to_existing_atom(key))
+    #   end
+    # end)
   end
 
   @doc """
@@ -84,24 +97,9 @@ defmodule Pstore.Pets do
   """
   def get_pet!(id), do: Repo.get!(Pet, id)
 
-  @doc """
-  Fetches a pet,.
+  def fetch_pet(id), do: Repo.fetch(Pet, id)
 
-  It returnes {:ok, pet} if succeedes, {:error, :not_found} otherwise.
-  """
-  def fetch(id, opts \\ []) do
-    case Repo.get(Pet, id, opts) do
-      nil -> {:error, :not_found}
-      pet -> {:ok, pet}
-    end
-  end
-
-  def fetch_by(clauses, opts \\ []) do
-    case Repo.get_by(Pet, clauses, opts) do
-      nil -> {:error, :not_found}
-      pet -> {:ok, pet}
-    end
-  end
+  def fetch_by_pet(clauses), do: Repo.fetch_by(Pet, clauses)
 
   @doc """
   Creates a pet.
