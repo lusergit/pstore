@@ -11,7 +11,7 @@ defmodule PstoreWeb.UserRegistrationController do
       {:ok, _} =
         Accounts.deliver_user_confirmation_instructions(
           user,
-          &"POST #{url(~p[/users/confirm/#{&1}])}"
+          fn _ -> nil end
         )
 
       conn = UserAuth.log_in_user(conn, user)

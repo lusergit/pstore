@@ -46,7 +46,7 @@ defmodule PstoreWeb.UserAuth do
   If you want to enforce the user email is confirmed before
   they use the application at all, here would be a good place.
   """
-  def require_authenticated_user(conn, _opts) do
+  def require_authenticated_user(conn, _opts \\ []) do
     case try_authenticate(conn) do
       {:ok, token, user} ->
         conn
@@ -61,16 +61,21 @@ defmodule PstoreWeb.UserAuth do
     end
   end
 
-  def try_authenticate(conn) do
-    fetch_api_user(conn)
+  defp try_authenticate(conn) do
+    with {:ok, token} <- load_token_from_auth(get_req_header(conn, "authorization")),
+         {:ok, user} <- load_user_by_token(token) do
+      {:ok, token, user}
+    end
   end
 
-  def fetch_api_user(conn, _opts \\ %{}) do
-    with ["Bearer " <> token] <- get_req_header(conn, "authorization"),
-         {:ok, user} <- Accounts.fetch_user_by_api_token(token) do
-      {:ok, token, user}
-    else
-      _ -> {:error, 403}
+  defp load_token_from_auth(["Bearer " <> token]), do: {:ok, token}
+  defp load_token_from_auth([]), do: {:error, :unauthorized}
+  defp load_token_from_auth(_), do: {:error, :bad_request}
+
+  defp load_user_by_token(token) do
+    case Accounts.fetch_user_by_api_token(token) do
+      {:ok, user} -> {:ok, user}
+      {:error, :not_found} -> {:error, :forbidden}
     end
   end
 end

@@ -10,8 +10,6 @@ defmodule PstoreWeb.Router do
   scope "/", PstoreWeb do
     pipe_through [:api, :require_authenticated_user]
 
-    resources "/pets", PetController
-
     put "/users/settings", UserSessionController, :update
     put "/users/settings", UserSessionController, :confirm_email
 
@@ -23,5 +21,7 @@ defmodule PstoreWeb.Router do
 
     post "/users/register", UserRegistrationController, :create
     post "/users/login", UserSessionController, :create
+
+    resources "/pets", PetController
   end
 end

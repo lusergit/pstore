@@ -9,7 +9,7 @@ defmodule PstoreWeb.UserConfirmationController do
     with {:ok, user} <- Accounts.fetch_user_by_email(email) do
       Accounts.deliver_user_confirmation_instructions(
         user,
-        &"POST #{url(~p[/users/confirm/#{&1}])}"
+        fn _ -> nil end
       )
     end
 

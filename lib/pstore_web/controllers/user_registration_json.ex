@@ -1,4 +1,6 @@
 defmodule PstoreWeb.UserRegistrationJSON do
+  use PstoreWeb, :json
+
   def register(%{token: token}) do
     %{
       status: "ok",
