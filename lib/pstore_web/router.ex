@@ -3,73 +3,25 @@ defmodule PstoreWeb.Router do
 
   import PstoreWeb.UserAuth
 
-  pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_live_flash
-    plug :put_root_layout, html: {PstoreWeb.Layouts, :root}
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
-    plug :fetch_current_user
-  end
-
   pipeline :api do
     plug :accepts, ["json"]
   end
 
   scope "/", PstoreWeb do
-    pipe_through :api
+    pipe_through [:api, :require_authenticated_user]
 
     resources "/pets", PetController
-  end
 
-  # Enable LiveDashboard and Swoosh mailbox preview in development
-  if Application.compile_env(:pstore, :dev_routes) do
-    import Phoenix.LiveDashboard.Router
+    put "/users/settings", UserSessionController, :update
+    put "/users/settings", UserSessionController, :confirm_email
 
-    scope "/dev" do
-      pipe_through :browser
-
-      live_dashboard "/dashboard", metrics: PstoreWeb.Telemetry
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
-    end
-  end
-
-  ## Authentication routes
-
-  scope "/", PstoreWeb do
-    pipe_through [:browser, :redirect_if_user_is_authenticated]
-
-    live_session :redirect_if_user_is_authenticated,
-      on_mount: [{PstoreWeb.UserAuth, :redirect_if_user_is_authenticated}] do
-      live "/users/register", UserRegistrationLive, :new
-      live "/users/log_in", UserLoginLive, :new
-      live "/users/reset_password", UserForgotPasswordLive, :new
-      live "/users/reset_password/:token", UserResetPasswordLive, :edit
-    end
-
-    post "/users/log_in", UserSessionController, :create
+    delete "/users/logout", UserSessionController, :delete
   end
 
   scope "/", PstoreWeb do
-    pipe_through [:browser, :require_authenticated_user]
+    pipe_through :api
 
-    live_session :require_authenticated_user,
-      on_mount: [{PstoreWeb.UserAuth, :ensure_authenticated}] do
-      live "/users/settings", UserSettingsLive, :edit
-      live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
-    end
-  end
-
-  scope "/", PstoreWeb do
-    pipe_through [:browser]
-
-    delete "/users/log_out", UserSessionController, :delete
-
-    live_session :current_user,
-      on_mount: [{PstoreWeb.UserAuth, :mount_current_user}] do
-      live "/users/confirm/:token", UserConfirmationLive, :edit
-      live "/users/confirm", UserConfirmationInstructionsLive, :new
-    end
+    post "/users/register", UserRegistrationController, :create
+    post "/users/login", UserSessionController, :create
   end
 end

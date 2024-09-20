@@ -8,6 +8,8 @@ defmodule Pstore.Accounts do
 
   alias Pstore.Accounts.{User, UserToken, UserNotifier}
 
+  @apicontext "api"
+
   ## Database getters
 
   @doc """
@@ -42,6 +44,40 @@ defmodule Pstore.Accounts do
       when is_binary(email) and is_binary(password) do
     user = Repo.get_by(User, email: email)
     if User.valid_password?(user, password), do: user
+  end
+
+  @doc """
+  Fetch user by email.
+
+  ## Examples
+
+       iex> fetch_user_by_email(existing_email)
+       {:ok, %User{}}
+
+       iex> fetch_user_by_email(non_existing_email)
+       {:error, :not_found}
+  """
+  def fetch_user_by_email(email) when is_binary(email) do
+    Repo.fetch_by(User, email: email)
+  end
+
+  @doc """
+  Fetch user by email and password.
+
+  ## Examples
+
+       iex> fetch_user_by_email_and_password(existing_email, correct_pw)
+       {:ok, %User{}}
+
+       iex> fetch_user_by_email_and_password(existing_email, incorrect_pw)
+       {:error, :}
+  """
+  def fetch_user_by_email_and_password(email, password)
+      when is_binary(email) and is_binary(password) do
+    with {:ok, user} <- Repo.fetch_by(User, email: email) do
+      if User.valid_password?(user, password), do: {:ok, user}
+      {:error, :wrong_email_or_password}
+    end
   end
 
   @doc """
@@ -358,7 +394,7 @@ defmodule Pstore.Accounts do
   This token cannot be recovered from the database.
   """
   def create_user_api_token(user) do
-    {encoded_token, user_token} = UserToken.build_email_token(user, "api-token")
+    {encoded_token, user_token} = UserToken.build_email_token(user, @apicontext)
     Repo.insert!(user_token)
     encoded_token
   end
@@ -367,11 +403,17 @@ defmodule Pstore.Accounts do
   Fetches the user by API token.
   """
   def fetch_user_by_api_token(token) do
-    with {:ok, query} <- UserToken.verify_email_token_query(token, "api-token"),
+    with {:ok, query} <- UserToken.verify_email_token_query(token, @apicontext),
          %User{} = user <- Repo.one(query) do
       {:ok, user}
     else
       _ -> :error
     end
+  end
+
+  def delete_user_token(token) do
+    {:ok, query} = UserToken.by_token_and_context_query(token, @apicontext)
+    Repo.delete_all(query)
+    :ok
   end
 end
