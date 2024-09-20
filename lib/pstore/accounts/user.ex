@@ -9,7 +9,7 @@ defmodule Pstore.Accounts.User do
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
 
-    has_one :cart, Pstore.Cart
+    # has_one :cart, Pstore.Cart
 
     timestamps(type: :utc_datetime)
   end

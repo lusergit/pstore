@@ -1,10 +1,10 @@
-defmodule Pstore.Cart do
+defmodule Pstore.Carts.Cart do
   use Ecto.Schema
   import Ecto.Changeset
 
   schema "carts" do
-    belongs_to :user, Pstore.Accounts.User
-    has_many :pets, Pstore.Pets.Pet
+
+    field :user_id, :id
 
     timestamps(type: :utc_datetime)
   end
@@ -12,7 +12,6 @@ defmodule Pstore.Cart do
   @doc false
   def changeset(cart, attrs) do
     cart
-    |> Ecto.build_assoc(:pets)
     |> cast(attrs, [])
     |> validate_required([])
   end
