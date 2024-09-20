@@ -55,12 +55,7 @@ defmodule PstoreWeb.ConnCase do
   It returns an updated `conn`.
   """
   def log_in_user(conn, user) do
-    token = Pstore.Accounts.create_user_api_token(user)
+    Pstore.Accounts.create_user_api_token(user)
     PstoreWeb.UserAuth.log_in_user(conn, user)
-
-    # conn
-    # |> Phoenix.ConnTest.init_test_session(%{})
-    # |> Plug.Conn.assign(:user_token, token)
-    # |> Plug.Conn.assign(:current_user, user)
   end
 end
