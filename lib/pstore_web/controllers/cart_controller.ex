@@ -27,9 +27,10 @@ defmodule PstoreWeb.CartController do
              :access_cart,
              conn.assigns.current_user,
              target
-           ),
-         cart = Carts.open_cart_for(target),
-         do: render(conn, :show, cart: cart)
+           ) do
+      cart = Carts.open_cart_for(target)
+      render(conn, :show, cart: cart)
+    end
   end
 
   def add_to_cart(conn, %{"id" => pet_id}) do

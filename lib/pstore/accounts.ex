@@ -402,9 +402,8 @@ defmodule Pstore.Accounts do
   end
 
   def delete_user_token(token) do
-    {:ok, query} = UserToken.by_token_and_context_query(token, @apicontext)
-    Repo.delete_all(query)
-    :ok
+    query = UserToken.by_token_and_context_query(token, @apicontext)
+    {:ok, Repo.delete_all(query)}
   end
 
   @doc """

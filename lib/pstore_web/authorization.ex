@@ -1,4 +1,5 @@
 defmodule PstoreWeb.Authorization do
+  @moduledoc false
   @behaviour Bodyguard.Policy
 
   alias Pstore.Accounts.User

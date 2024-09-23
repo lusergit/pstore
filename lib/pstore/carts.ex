@@ -180,7 +180,7 @@ defmodule Pstore.Carts do
     defaults = [force_refetch: false]
     opts = Keyword.validate!(opts, defaults)
 
-    case is_empty?(cart, opts) do
+    case empty?(cart, opts) do
       true ->
         {:error, :bad_request}
 
@@ -189,7 +189,7 @@ defmodule Pstore.Carts do
     end
   end
 
-  def is_empty?(%Cart{} = cart, opts \\ []) do
+  def empty?(%Cart{} = cart, opts \\ []) do
     defaults = [force_refetch: false]
     opts = Keyword.validate!(opts, defaults)
 
@@ -213,12 +213,11 @@ defmodule Pstore.Carts do
       with {:ok, cart_to} <-
              %Cart{user_id: recipient.id}
              |> Cart.changeset(%{completed_on: now})
-             |> Repo.insert(),
-           {:ok, updated_pet} <-
-             pet
-             |> Ecto.Changeset.change(cart_id: cart_to.id)
-             |> Repo.update() do
-        {:ok, updated_pet}
+             |> Repo.insert() do
+        pet
+        |> Ecto.Changeset.change(cart_id: cart_to.id)
+        |> Repo.update do
+        end
       end
     end)
   end

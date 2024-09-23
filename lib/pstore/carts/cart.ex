@@ -1,4 +1,6 @@
 defmodule Pstore.Carts.Cart do
+  @moduledoc false
+
   use Ecto.Schema
   import Ecto.Changeset
 

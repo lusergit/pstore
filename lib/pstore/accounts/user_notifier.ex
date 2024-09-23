@@ -1,4 +1,5 @@
 defmodule Pstore.Accounts.UserNotifier do
+  @moduledoc false
   import Swoosh.Email
 
   alias Pstore.Mailer

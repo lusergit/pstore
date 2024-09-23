@@ -1,4 +1,6 @@
 defmodule Pstore.Accounts.UserToken do
+  @moduledoc false
+
   use Ecto.Schema
   import Ecto.Query
   alias Pstore.Accounts.UserToken

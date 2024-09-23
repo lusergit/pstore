@@ -127,13 +127,13 @@ defmodule PstoreWeb.CartControllerTest do
       cart = Carts.open_cart_for(user)
 
       Carts.add_to_cart(cart, pet)
-      refute Carts.is_empty?(cart)
+      refute Carts.empty?(cart)
 
       conn
       |> post(~p"/empty")
       |> json_response(200)
 
-      assert Carts.is_empty?(cart, force_refetch: true)
+      assert Carts.empty?(cart, force_refetch: true)
     end
 
     test "errors out on unauthenticated conn", %{conn: conn} do
@@ -150,13 +150,13 @@ defmodule PstoreWeb.CartControllerTest do
       cart = Carts.open_cart_for(user)
 
       Carts.add_to_cart(cart, pet)
-      refute Carts.is_empty?(cart)
+      refute Carts.empty?(cart)
 
       conn
       |> post(~p"/carts/#{cart}/empty")
       |> json_response(200)
 
-      assert Carts.is_empty?(cart, force_refetch: true)
+      assert Carts.empty?(cart, force_refetch: true)
     end
 
     test "errors out on unauthenticated conn", %{conn: conn} do
@@ -181,7 +181,7 @@ defmodule PstoreWeb.CartControllerTest do
       |> post(~p"/carts/#{cart}/empty")
       |> json_response(200)
 
-      assert Carts.is_empty?(cart, force_refetch: true)
+      assert Carts.empty?(cart, force_refetch: true)
     end
 
     test "cannot empty completed carts", %{admin_conn: conn, user: user, pet: pet} do

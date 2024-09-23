@@ -1,4 +1,8 @@
 defmodule PstoreWeb.UserAuth do
+  @moduledoc """
+  User Authentication module.
+  """
+
   use PstoreWeb, :verified_routes
 
   import Plug.Conn
@@ -32,11 +36,13 @@ defmodule PstoreWeb.UserAuth do
   It clears all session data for safety. See renew_session.
   """
   def log_out_user(conn) do
-    with {:ok, user_token} <- Map.fetch(conn.assigns, :user_token) do
-      user_token && Accounts.delete_user_token(user_token)
-      update_in(conn.assigns, &Map.drop(&1, [:user_token, :current_user]))
-    else
-      _ -> conn
+    case Map.fetch(conn.assigns, :user_token) do
+      {:ok, user_token} ->
+        user_token && Accounts.delete_user_token(user_token)
+        update_in(conn.assigns, &Map.drop(&1, [:user_token, :current_user]))
+
+      _ ->
+        conn
     end
   end
 
@@ -100,7 +106,7 @@ defmodule PstoreWeb.UserAuth do
   defp load_user_by_token(token) do
     case Accounts.fetch_user_by_api_token(token) do
       {:ok, user} -> {:ok, user}
-      {:error, :not_found} -> {:error, :forbidden}
+      :error -> {:error, :forbidden}
     end
   end
 end

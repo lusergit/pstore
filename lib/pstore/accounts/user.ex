@@ -1,4 +1,10 @@
 defmodule Pstore.Accounts.User do
+  @moduledoc """
+  User schema, generated trough ecto. 
+  Decribes the %User{} structure preserved in the
+  database trought the Repo module.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 
