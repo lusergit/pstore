@@ -15,7 +15,14 @@ defmodule PstoreWeb.PetJSON do
     %{data: data(pet)}
   end
 
-  defp data(%Pet{} = pet) do
+  def deleted(%{pet: pet}) do
+    %{
+      status: "ok",
+      deleted_pet: data(pet)
+    }
+  end
+
+  def data(%Pet{} = pet) do
     %{
       type: "pets",
       id: pet.id,

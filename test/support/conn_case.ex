@@ -55,7 +55,19 @@ defmodule PstoreWeb.ConnCase do
   It returns an updated `conn`.
   """
   def log_in_user(conn, user) do
-    Pstore.Accounts.create_user_api_token(user)
-    PstoreWeb.UserAuth.log_in_user(conn, user)
+    token = Pstore.Accounts.create_user_api_token(user)
+
+    conn
+    |> Phoenix.ConnTest.init_test_session(%{})
+    |> Plug.Conn.put_req_header("authorization", "Bearer #{token}")
+    |> Plug.Conn.assign(:user_token, token)
+    |> Plug.Conn.assign(:current_user, user)
+  end
+
+  @doc """
+  Sets a value in the path parameters.
+  """
+  def put_req_path_param(conn, key, value) do
+    put_in(conn.path_params[key], value)
   end
 end

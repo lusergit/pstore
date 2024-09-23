@@ -8,10 +8,14 @@ defmodule Pstore.CartsFixtures do
   Generate a cart.
   """
   def cart_fixture(attrs \\ %{}) do
+    user_id =
+      attrs[:user_id] ||
+        Pstore.AccountsFixtures.user_fixture().id
+
     {:ok, cart} =
       attrs
       |> Enum.into(%{
-
+        user_id: user_id
       })
       |> Pstore.Carts.create_cart()
 

@@ -3,7 +3,8 @@ defmodule Pstore.Repo.Migrations.CreateCarts do
 
   def change do
     create table(:carts) do
-      add :user_id, references(:users, on_delete: :nothing)
+      add :completed_on, :utc_datetime
+      add :user_id, references(:users, on_delete: :nothing), null: false
 
       timestamps(type: :utc_datetime)
     end

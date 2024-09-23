@@ -33,7 +33,7 @@ defmodule PstoreWeb.UserAuth do
   """
   def log_out_user(conn) do
     with {:ok, user_token} <- Map.fetch(conn.assigns, :user_token) do
-      user_token && Accounts.delete_user_session_token(user_token)
+      user_token && Accounts.delete_user_token(user_token)
       update_in(conn.assigns, &Map.drop(&1, [:user_token, :current_user]))
     else
       _ -> conn
@@ -48,17 +48,42 @@ defmodule PstoreWeb.UserAuth do
   """
   def require_authenticated_user(conn, _opts \\ []) do
     case try_authenticate(conn) do
-      {:ok, token, user} ->
-        conn
-        |> assign(:current_user, user)
-        |> assign(:user_token, token)
+      {:ok, token, user} -> insert_auth(conn, token, user)
+      {:error, status} -> raise_error(conn, status)
+    end
+  end
+
+  def maybe_authenticate_user(conn, _opts) do
+    case try_authenticate(conn) do
+      {:ok, token, user} -> insert_auth(conn, token, user)
+      _ -> conn
+    end
+  end
+
+  def require_admin(conn, _opts \\ []) do
+    case try_authenticate(conn) do
+      {:ok, token, user} when user.admin_level > 0 ->
+        insert_auth(conn, token, user)
 
       {:error, status} ->
-        conn
-        |> resp(status, "")
-        |> send_resp()
-        |> halt()
+        raise_error(conn, status)
+
+      _ ->
+        raise_error(conn, :forbidden)
     end
+  end
+
+  defp raise_error(conn, status, body \\ "") do
+    conn
+    |> resp(status, body)
+    |> send_resp()
+    |> halt()
+  end
+
+  defp insert_auth(conn, token, user) do
+    conn
+    |> assign(:current_user, user)
+    |> assign(:user_token, token)
   end
 
   defp try_authenticate(conn) do

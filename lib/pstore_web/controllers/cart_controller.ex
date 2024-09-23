@@ -3,6 +3,8 @@ defmodule PstoreWeb.CartController do
 
   alias Pstore.Carts
   alias Pstore.Carts.Cart
+  alias Pstore.Pets
+  alias Pstore.Accounts
 
   action_fallback PstoreWeb.FallbackController
 
@@ -11,33 +13,74 @@ defmodule PstoreWeb.CartController do
     render(conn, :index, carts: carts)
   end
 
-  def create(conn, %{"cart" => cart_params}) do
-    with {:ok, %Cart{} = cart} <- Carts.create_cart(cart_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", ~p"/api/carts/#{cart}")
-      |> render(:show, cart: cart)
-    end
-  end
-
   def show(conn, %{"id" => id}) do
-    cart = Carts.get_cart!(id)
-    render(conn, :show, cart: cart)
-  end
-
-  def update(conn, %{"id" => id, "cart" => cart_params}) do
-    cart = Carts.get_cart!(id)
-
-    with {:ok, %Cart{} = cart} <- Carts.update_cart(cart, cart_params) do
+    with {:ok, %Cart{} = cart} <- Carts.fetch_cart(id) do
       render(conn, :show, cart: cart)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    cart = Carts.get_cart!(id)
+  def show_open(conn, %{"id" => user_id}) do
+    with {:ok, target} <- Accounts.fetch_user(user_id),
+         :ok <-
+           Bodyguard.permit(
+             PstoreWeb.Authorization,
+             :access_cart,
+             conn.assigns.current_user,
+             target
+           ),
+         cart = Carts.open_cart_for(target),
+         do: render(conn, :show, cart: cart)
+  end
 
-    with {:ok, %Cart{}} <- Carts.delete_cart(cart) do
-      send_resp(conn, :no_content, "")
+  def add_to_cart(conn, %{"id" => pet_id}) do
+    user = conn.assigns.current_user
+    cart = Carts.open_cart_for(user)
+
+    with {:ok, pet} <- Pets.fetch_pet(pet_id),
+         {:ok, _new_pet} <- Carts.add_to_cart(cart, pet) do
+      render(conn, :show, cart: cart)
     end
+  end
+
+  def checkout(conn, _params) do
+    user = conn.assigns.current_user
+    cart = Carts.open_cart_for(user)
+
+    with {:ok, cart} <- Carts.checkout(cart) do
+      render(conn, :show, cart: cart)
+    end
+  end
+
+  def empty_by_open(conn, _params),
+    do:
+      conn.assigns.current_user
+      |> Carts.open_cart_for()
+      |> do_empty_cart(conn)
+
+  def empty_by_id(conn, %{"id" => cart_id}) do
+    with {:ok, cart} <- Carts.fetch_cart(cart_id),
+         :ok <- validate_open_cart(cart),
+         {:ok, owner} <- Accounts.fetch_user(cart.user_id),
+         :ok <-
+           Bodyguard.permit(
+             PstoreWeb.Authorization,
+             :access_cart,
+             conn.assigns.current_user,
+             owner
+           ) do
+      do_empty_cart(cart, conn)
+    end
+  end
+
+  defp do_empty_cart(cart, conn) do
+    Carts.empty(cart)
+    cart = Pstore.Repo.preload(cart, :pets, force: true)
+    render(conn, :show, cart: cart)
+  end
+
+  defp validate_open_cart(cart) do
+    if cart.completed_on,
+      do: {:error, :forbidden},
+      else: :ok
   end
 end

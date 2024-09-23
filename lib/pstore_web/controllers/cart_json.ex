@@ -1,5 +1,6 @@
 defmodule PstoreWeb.CartJSON do
   alias Pstore.Carts.Cart
+  alias PstoreWeb.PetJSON
 
   @doc """
   Renders a list of carts.
@@ -15,9 +16,13 @@ defmodule PstoreWeb.CartJSON do
     %{data: data(cart)}
   end
 
-  defp data(%Cart{} = cart) do
+  def data(%Cart{} = cart) do
+    cart = cart |> Pstore.Repo.preload(:pets)
+
     %{
-      id: cart.id
+      id: cart.id,
+      completed_on: cart.completed_on,
+      pets: Enum.map(cart.pets, &PetJSON.data/1)
     }
   end
 end

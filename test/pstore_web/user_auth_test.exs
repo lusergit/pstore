@@ -32,7 +32,7 @@ defmodule PstoreWeb.UserAuthTest do
 
   describe "require_authenticated_user/2" do
     test "halts if user is not authenticated", %{conn: conn} do
-      conn = conn |> fetch_flash() |> UserAuth.require_authenticated_user()
+      conn = conn |> fetch_flash() |> UserAuth.require_authenticated_user([])
       assert conn.halted
       assert conn.status == 401
     end

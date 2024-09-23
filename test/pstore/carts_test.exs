@@ -8,7 +8,8 @@ defmodule Pstore.CartsTest do
 
     import Pstore.CartsFixtures
 
-    @invalid_attrs %{}
+    # completed on must be a datetime
+    @invalid_attrs %{completed_on: 5}
 
     test "list_carts/0 returns all carts" do
       cart = cart_fixture()
@@ -21,9 +22,11 @@ defmodule Pstore.CartsTest do
     end
 
     test "create_cart/1 with valid data creates a cart" do
-      valid_attrs = %{}
+      valid_id = Pstore.AccountsFixtures.user_fixture().id
+      valid_attrs = %{user_id: valid_id}
 
       assert {:ok, %Cart{} = cart} = Carts.create_cart(valid_attrs)
+      assert(cart.user_id == valid_id)
     end
 
     test "create_cart/1 with invalid data returns error changeset" do
@@ -32,9 +35,10 @@ defmodule Pstore.CartsTest do
 
     test "update_cart/2 with valid data updates the cart" do
       cart = cart_fixture()
-      update_attrs = %{}
+      update_attrs = %{completed_on: ~U[2024-09-23 09:04:00Z]}
 
       assert {:ok, %Cart{} = cart} = Carts.update_cart(cart, update_attrs)
+      assert cart.completed_on == ~U[2024-09-23 09:04:00Z]
     end
 
     test "update_cart/2 with invalid data returns error changeset" do

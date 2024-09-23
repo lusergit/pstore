@@ -10,15 +10,18 @@ defmodule Pstore.AccountsFixtures do
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
       email: unique_user_email(),
-      password: valid_user_password()
+      password: valid_user_password(),
+      admin_level: 0
     })
   end
 
   def user_fixture(attrs \\ %{}) do
+    valid_attrs = valid_user_attributes(attrs)
+
     {:ok, user} =
-      attrs
-      |> valid_user_attributes()
-      |> Pstore.Accounts.register_user()
+      %Pstore.Accounts.User{}
+      |> Pstore.Accounts.User.registration_changeset(valid_attrs)
+      |> Pstore.Repo.insert()
 
     user
   end

@@ -2,6 +2,8 @@ defmodule Pstore.Pets.Pet do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Pstore.Carts.Cart
+
   @moduledoc false
 
   schema "pets" do
@@ -10,6 +12,8 @@ defmodule Pstore.Pets.Pet do
     field :age, :integer
     field :species, Ecto.Enum, values: [:cat, :dog]
     field :breed, :string
+
+    belongs_to :cart, Cart
 
     timestamps(type: :utc_datetime)
   end

@@ -75,8 +75,11 @@ defmodule Pstore.Accounts do
   def fetch_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
     with {:ok, user} <- Repo.fetch_by(User, email: email) do
-      if User.valid_password?(user, password), do: {:ok, user}
-      {:error, :wrong_email_or_password}
+      if User.valid_password?(user, password) do
+        {:ok, user}
+      else
+        {:error, :wrong_email_or_password}
+      end
     end
   end
 
@@ -95,6 +98,20 @@ defmodule Pstore.Accounts do
 
   """
   def get_user!(id), do: Repo.get!(User, id)
+
+  @doc """
+  Fetches a single user.
+
+  ## Examples
+
+      iex> fetch_user(123)
+      {:ok , %User{}}
+
+      iex> fetch_user(456)
+      {:error, :not_found}
+
+  """
+  def fetch_user(id), do: Repo.fetch(User, id)
 
   ## User registration
 
@@ -251,33 +268,6 @@ defmodule Pstore.Accounts do
     end
   end
 
-  ## Session
-
-  @doc """
-  Generates a session token.
-  """
-  def generate_user_session_token(user) do
-    {token, user_token} = UserToken.build_session_token(user)
-    Repo.insert!(user_token)
-    token
-  end
-
-  @doc """
-  Gets the user with the given signed token.
-  """
-  def get_user_by_session_token(token) do
-    {:ok, query} = UserToken.verify_session_token_query(token)
-    Repo.one(query)
-  end
-
-  @doc """
-  Deletes the signed token with the given context.
-  """
-  def delete_user_session_token(token) do
-    Repo.delete_all(UserToken.by_token_and_context_query(token, "session"))
-    :ok
-  end
-
   ## Confirmation
 
   @doc ~S"""
@@ -415,5 +405,26 @@ defmodule Pstore.Accounts do
     {:ok, query} = UserToken.by_token_and_context_query(token, @apicontext)
     Repo.delete_all(query)
     :ok
+  end
+
+  @doc """
+  Gets the user by reset password token.
+
+  ## Examples
+
+      iex> fetch_user_by_reset_password_token("validtoken")
+      {:ok, %User{}}
+
+      iex> fetch_user_by_reset_password_token("invalidtoken")
+      {:error, :not_found}
+
+  """
+  def fetch_user_by_reset_password_token(token) do
+    with {:ok, query} <- UserToken.verify_email_token_query(token, "reset_password"),
+         %User{} = user <- Repo.one(query) do
+      {:ok, user}
+    else
+      _ -> {:error, :not_found}
+    end
   end
 end

@@ -40,7 +40,9 @@ defmodule PstoreWeb.PetController do
   def delete(conn, %{"id" => id}) do
     with {:ok, %Pet{} = pet} <- Pets.fetch_pet(id),
          {:ok, %Pet{}} <- Pets.delete_pet(pet) do
-      send_resp(conn, :no_content, "")
+      conn
+      |> put_status(:no_content)
+      |> render(:deleted, pet: pet)
     end
   end
 end

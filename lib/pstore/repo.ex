@@ -40,4 +40,18 @@ defmodule Pstore.Repo do
       pet -> {:ok, pet}
     end
   end
+
+  def transact(funn, opts \\ []) do
+    transaction(
+      fn ->
+        case funn.() do
+          {:ok, value} -> value
+          :ok -> :transaction_committed
+          {:error, msg} -> rollback(msg)
+          :error -> rollback(:transaction_error_rollback)
+        end
+      end,
+      opts
+    )
+  end
 end
